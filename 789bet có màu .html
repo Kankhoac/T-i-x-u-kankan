@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng dụng Cược</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 400px;
+            margin: auto;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+        .balance {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #28a745;
+        }
+        .input-section {
+            margin-bottom: 15px;
+        }
+        .input-section label {
+            display: inline-block;
+            margin-right: 5px;
+            color: #495057;
+        }
+        input, button {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        input:focus, button:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .bet-options {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+        .bet-option {
+            padding: 15px;
+            width: 80px;
+            text-align: center;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            background-color: #ffffff;
+            color: #333;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .bet-option:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        .bet-option.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .double-bet-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .double-bet-buttons button {
+            width: 48%;
+            background-color: #28a745;
+            border: none;
+            cursor: pointer;
+            color: white;
+        }
+        .double-bet-buttons button:hover {
+            background-color: #218838;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+        .buttons button {
+            width: 45%;
+        }
+        .container {
+            position: relative;
+        }
+        .image-background {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 120px;
+            height: auto;
+            opacity: 0.15;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ứng dụng Cược</h1>
+    <div class="container">
+        <!-- Image of a woman in bikini as a background or decoration -->
+        <img class="image-background" src="https://drive.google.com/uc?export=view&id=17TmTfyBJ3usXi__jrNlDMvSShi93-dh1" alt="Cô gái đẹp" />
+    </div>
+
+    <div class="balance">Số dư: <span id="balance">0</span> VND</div>
+
+    <div class="input-section">
+        <label for="betAmount">Số tiền cược:</label>
+        <input type="number" id="betAmount" placeholder="Số tiền cược" style="width: 100%;" />
+        
+        <div class="double-bet-buttons">
+            <button onclick="doubleBet()">Nhân đôi</button>
+            <button onclick="halfBet()">Chia đôi</button>
+        </div>
+    </div>
+
+    <div class="input-section">
+        <label for="depositAmount">Nạp tiền:</label>
+        <input type="number" id="depositAmount" placeholder="Số tiền nạp" style="width: 100%;" />
+        <button onclick="depositMoney()" style="width: 100%; margin-top: 10px;">Nạp tiền</button>
+    </div>
+
+    <div class="bet-options">
+        <div id="tai" class="bet-option" onclick="toggleBetOption('tai')">Tài</div>
+        <div id="xiu" class="bet-option" onclick="toggleBetOption('xiu')">Xỉu</div>
+    </div>
+
+    <div class="buttons">
+        <button onclick="placeBet(true)">Thắng</button>
+        <button onclick="placeBet(false)">Thua</button>
+    </div>
+
+    <script>
+        let balance = parseFloat(localStorage.getItem('balance')) || 0;
+        let selectedBetOption = '';
+        let betAmount = 0;
+
+        // Cập nhật số dư hiển thị trên giao diện
+        function updateBalance() {
+            document.getElementById("balance").textContent = balance.toFixed(2);
+            localStorage.setItem('balance', balance);
+        }
+
+        // Đặt cược (cộng 0.95 lần cược nếu thắng, trừ cược nếu thua)
+        function placeBet(isWin) {
+            betAmount = parseFloat(document.getElementById("betAmount").value);
+            if (isNaN(betAmount) || betAmount <= 0) {
+                alert("Vui lòng nhập số tiền cược hợp lệ.");
+                return;
+            }
+
+            if (selectedBetOption === '') {
+                alert("Vui lòng chọn Tài hoặc Xỉu.");
+                return;
+            }
+
+            if (isWin) {
+                balance += betAmount * 0.95;
+            } else {
+                balance -= betAmount;
+            }
+            updateBalance();
+        }
+
+        // Nạp tiền
+        function depositMoney() {
+            const depositAmount = parseFloat(document.getElementById("depositAmount").value);
+            if (isNaN(depositAmount) || depositAmount <= 0) {
+                alert("Vui lòng nhập số tiền nạp hợp lệ.");
+                return;
+            }
+
+            balance += depositAmount;
+            document.getElementById("depositAmount").value = '';
+            updateBalance();
+        }
+
+        // Chọn Tài hoặc Xỉu
+        function toggleBetOption(option) {
+            document.getElementById("tai").classList.remove("active");
+            document.getElementById("xiu").classList.remove("active");
+
+            selectedBetOption = option;
+            document.getElementById(option).classList.add("active");
+        }
+
+        // Nhân đôi số tiền cược
+        function doubleBet() {
+            betAmount = parseFloat(document.getElementById("betAmount").value);
+            if (isNaN(betAmount) || betAmount <= 0) {
+                alert("Vui lòng nhập số tiền cược hợp lệ trước khi nhân đôi.");
+                return;
+            }
+
+            betAmount *= 2;
+            document.getElementById("betAmount").value = betAmount;
+        }
+
+        // Chia đôi số tiền cược
+        function halfBet() {
+            betAmount = parseFloat(document.getElementById("betAmount").value);
+            if (isNaN(betAmount) || betAmount <= 0) {
+                alert("Vui lòng nhập số tiền cược hợp lệ trước khi chia đôi.");
+                return;
+            }
+
+            betAmount /= 2;
+            document.getElementById("betAmount").value = betAmount;
+        }
+
+        // Khởi tạo số dư từ localStorage
+        updateBalance();
+    </script>
+</body>
+</html>
